@@ -2451,7 +2451,7 @@ const MCExpr *X86TargetLowering::
 getPICJumpTableRelocBaseExpr(const MachineFunction *MF, unsigned JTI,
                              MCContext &Ctx) const {
   // X86-64 uses RIP relative addressing based on the jump table label.
-  if (Subtarget.isPICStyleRIPRel())
+  if (Subtarget.isPICStyleRIPRel() || Subtarget.is64Bit())
     return TargetLowering::getPICJumpTableRelocBaseExpr(MF, JTI, Ctx);
 
   // Otherwise, the reference is relative to the PIC base.
@@ -19206,7 +19206,7 @@ unsigned X86TargetLowering::getGlobalWrapperKind(
     return X86ISD::Wrapper;
 
   CodeModel::Model M = getTargetMachine().getCodeModel();
-  if (Subtarget.isPICStyleRIPRel() &&
+  if ((Subtarget.isPICStyleRIPRel() || Subtarget.is64Bit()) &&
       (M == CodeModel::Small || M == CodeModel::Kernel))
     return X86ISD::WrapperRIP;
 
