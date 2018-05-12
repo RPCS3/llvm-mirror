@@ -5408,16 +5408,14 @@ MachineInstr *X86InstrInfo::foldMemoryOperandImpl(
 
     // x86-32 PIC requires a PIC base register for constant pools.
     unsigned PICBase = 0;
-    if (MF.getTarget().isPositionIndependent()) {
-      if (Subtarget.is64Bit())
-        PICBase = X86::RIP;
-      else
-        // FIXME: PICBase = getGlobalBaseReg(&MF);
-        // This doesn't work for several reasons.
-        // 1. GlobalBaseReg may have been spilled.
-        // 2. It may not be live at MI.
-        return nullptr;
-    }
+    if (Subtarget.is64Bit())
+      PICBase = X86::RIP;
+    else if (MF.getTarget().isPositionIndependent())
+      // FIXME: PICBase = getGlobalBaseReg(&MF);
+      // This doesn't work for several reasons.
+      // 1. GlobalBaseReg may have been spilled.
+      // 2. It may not be live at MI.
+      return nullptr;
 
     // Create a constant-pool entry.
     MachineConstantPool &MCP = *MF.getConstantPool();
