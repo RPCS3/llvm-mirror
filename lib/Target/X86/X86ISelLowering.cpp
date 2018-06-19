@@ -38820,6 +38820,67 @@ static SDValue combineSelect(SDNode *N, SelectionDAG &DAG,
     }
   }
 
+  // Simplify VSELECT if the condition is sign test, using VPBLEND.
+  if (N->getOpcode() == ISD::VSELECT && Cond.getOpcode() == ISD::SETCC &&
+      ((Subtarget.hasSSE41() && VT == MVT::v16i8) ||
+       (Subtarget.hasAVX2() && VT == MVT::v32i8))) {
+    ISD::CondCode CC = cast<CondCodeSDNode>(Cond.getOperand(2))->get();
+    SDValue C0 = Cond.getOperand(0);
+    SDValue C1 = Cond.getOperand(1);
+
+    // Check if one of the arms of the SETCC is a zero vector. If it's on the
+    // left side invert the predicate to simplify logic below.
+    SDValue Other;
+    if (ISD::isBuildVectorAllZeros(C0.getNode())) {
+      Other = C1;
+      CC = ISD::getSetCCInverse(CC, VT.getVectorElementType());
+    } else if (ISD::isBuildVectorAllZeros(C1.getNode())) {
+      Other = C0;
+    }
+
+    if (Other.getNode() && Other.getValueType() == VT &&
+        (CC == ISD::SETLT || CC == ISD::SETGE)) {
+      SDValue NextOp = peekThroughBitcasts(Other);
+
+      // Try to lower v16i8 SHL by const to v8i16 shift (with AND)
+      if (NextOp.getOpcode() == ISD::SHL && NextOp.getValueType() == VT) {
+        SDValue C = NextOp.getOperand(1);
+        if (ISD::isBuildVectorOfConstantSDNodes(C.getNode())) {
+          if (SDValue ShiftOp = LowerShift(NextOp, Subtarget, DAG)) {
+            NextOp = ShiftOp;
+          }
+        }
+      }
+
+      // Try to eliminate unnecessary AND if it doesn't touch sign bit.
+      if (NextOp.getOpcode() == ISD::AND) {
+        SDValue M = NextOp.getOperand(1);
+        EVT MT = M.getValueType();
+        if (ISD::isBuildVectorOfConstantSDNodes(M.getNode())) {
+          unsigned Count = MT.getVectorNumElements();
+
+          for (unsigned i = 0; i < Count; ++i) {
+            auto *C = cast<ConstantSDNode>(M.getOperand(i));
+            uint64_t mask = 0x8080808080808080ull;
+            mask >>= (64 - MT.getScalarSizeInBits());
+
+            if ((C->getZExtValue() & mask) != mask)
+              Count = 0;
+          }
+
+          if (Count) {
+            Other = peekThroughBitcasts(NextOp.getOperand(0));
+            Other = DAG.getBitcast(VT, Other);
+          }
+        }
+      }
+
+      if (CC == ISD::SETGE)
+        std::swap(LHS, RHS);
+      return DAG.getNode(X86ISD::BLENDV, DL, VT, Other, LHS, RHS);
+    }
+  }
+
   // Match VSELECTs into subs with unsigned saturation.
   if (N->getOpcode() == ISD::VSELECT && Cond.getOpcode() == ISD::SETCC &&
       // psubus is available in SSE2 for i8 and i16 vectors.
