@@ -40146,11 +40146,22 @@ static SDValue combineShiftLeft(SDNode *N, SelectionDAG &DAG) {
   return SDValue();
 }
 
-static SDValue combineShiftRightArithmetic(SDNode *N, SelectionDAG &DAG) {
+static SDValue combineShiftRightArithmetic(SDNode *N, SelectionDAG &DAG,
+                                           const X86Subtarget &Subtarget) {
   SDValue N0 = N->getOperand(0);
   SDValue N1 = N->getOperand(1);
   EVT VT = N0.getValueType();
   unsigned Size = VT.getSizeInBits();
+  APInt MinAmnt;
+
+  // Detect pattern (ashr (a, umin(b, MaxAllowedShiftAmount)))
+  if (VT.isVector() && N1.getOpcode() == ISD::UMIN &&
+      SupportedVectorVarShift(VT.getSimpleVT(), Subtarget, ISD::SRA) &&
+      ISD::isConstantSplatVector(N1.getOperand(1).getNode(), MinAmnt) &&
+      MinAmnt == VT.getScalarSizeInBits() - 1) {
+    // Use infinite-precision vector variable shift if supported
+    return DAG.getNode(X86ISD::VSRAV, SDLoc(N), VT, N0, N1.getOperand(0));
+  }
 
   // fold (ashr (shl, a, [56,48,32,24,16]), SarConst)
   // into (shl, (sext (a), [56,48,32,24,16] - SarConst)) or
@@ -47026,7 +47037,7 @@ SDValue X86TargetLowering::PerformDAGCombine(SDNode *N,
   case X86ISD::ADC:         return combineADC(N, DAG, DCI);
   case ISD::MUL:            return combineMul(N, DAG, DCI, Subtarget);
   case ISD::SHL:            return combineShiftLeft(N, DAG);
-  case ISD::SRA:            return combineShiftRightArithmetic(N, DAG);
+  case ISD::SRA:            return combineShiftRightArithmetic(N, DAG, Subtarget);
   case ISD::SRL:            return combineShiftRightLogical(N, DAG, DCI);
   case ISD::AND:            return combineAnd(N, DAG, DCI, Subtarget);
   case ISD::OR:             return combineOr(N, DAG, DCI, Subtarget);
