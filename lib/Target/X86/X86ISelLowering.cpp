@@ -41941,6 +41941,16 @@ static SDValue combineShiftRightArithmetic(SDNode *N, SelectionDAG &DAG,
   SDValue N1 = N->getOperand(1);
   EVT VT = N0.getValueType();
   unsigned Size = VT.getSizeInBits();
+  APInt MinAmnt;
+
+  // Detect pattern (ashr (a, umin(b, MaxAllowedShiftAmount)))
+  if (VT.isVector() && N1.getOpcode() == ISD::UMIN &&
+      SupportedVectorVarShift(VT.getSimpleVT(), Subtarget, ISD::SRA) &&
+      ISD::isConstantSplatVector(N1.getOperand(1).getNode(), MinAmnt) &&
+      MinAmnt == VT.getScalarSizeInBits() - 1) {
+    // Use infinite-precision vector variable shift if supported
+    return DAG.getNode(X86ISD::VSRAV, SDLoc(N), VT, N0, N1.getOperand(0));
+  }
 
   if (SDValue V = combineShiftToPMULH(N, DAG, Subtarget))
     return V;
