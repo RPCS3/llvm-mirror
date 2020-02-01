@@ -29,6 +29,7 @@
 #include <map>
 #include <system_error>
 #include <unordered_map>
+#include <deque>
 
 using namespace llvm;
 using namespace llvm::object;
@@ -251,7 +252,7 @@ protected:
 
   // A list of all sections emitted by the dynamic linker.  These sections are
   // referenced in the code by means of their index in this list - SectionID.
-  typedef SmallVector<SectionEntry, 64> SectionList;
+  typedef std::deque<SectionEntry> SectionList;
   SectionList Sections;
 
   typedef unsigned SID; // Type for SectionIDs
