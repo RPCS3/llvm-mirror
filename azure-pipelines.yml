@@ -44,13 +44,13 @@ jobs:
   - task: GitHubRelease@0
     inputs:
       gitHubConnection: RPCS3-Token
-      repositoryName: RPCS3/llvm
+      repositoryName: RPCS3/llvm-mirror
       action: edit # Options: create, edit, delete
       target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
       tagSource: auto # Required when action == Create# Options: auto, manual
       #tagPattern: # Optional
-      tag: 'continuous-linux-master' # Required when action == Edit || Action == Delete || TagSource == Manual
-      title: 'Linux build' # Optional
+      tag: 'custom-build' # Required when action == Edit || Action == Delete || TagSource == Manual
+      title: 'Linux Build' # Optional
       #releaseNotesSource: 'file' # Optional. Options: file, input
       #releaseNotesFile: # Optional
       #releaseNotes: # Optional
@@ -112,13 +112,13 @@ jobs:
   - task: GitHubRelease@0
     inputs:
       gitHubConnection: RPCS3-Token
-      repositoryName: RPCS3/llvm
+      repositoryName: RPCS3/llvm-mirror
       action: edit # Options: create, edit, delete
       target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
       tagSource: auto # Required when action == Create# Options: auto, manual
       #tagPattern: # Optional
-      tag: 'continuous-master' # Required when action == Edit || Action == Delete || TagSource == Manual
-      title: 'Windows build' # Optional
+      tag: 'custom-build-win' # Required when action == Edit || Action == Delete || TagSource == Manual
+      title: 'Windows Build' # Optional
       #releaseNotesSource: 'file' # Optional. Options: file, input
       #releaseNotesFile: # Optional
       #releaseNotes: # Optional
