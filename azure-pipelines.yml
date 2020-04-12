@@ -38,10 +38,11 @@ jobs:
       DESTDIR=./dest ninja install
       cd dest
       tar -czf llvmlibs-linux.tar.gz lib include bin
-      sha256sum ./llvmlibs-linux.tar.gz | awk '{ print $1}' >> llvmlibs-linux.tar.gz.sha256
+      sha256sum ./llvmlibs-linux.tar.gz | awk '{ print $1 }' >> llvmlibs-linux.tar.gz.sha256
     displayName: Package LLVM Libraries
 
   - task: GitHubRelease@0
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     inputs:
       gitHubConnection: RPCS3-Token
       repositoryName: RPCS3/llvm-mirror
@@ -81,35 +82,30 @@ jobs:
       cmake --build . --config Release -- /maxcpucount
     displayName: Build LLVM
 
-  - script: |
-      mkdir llvm_out
-      cd llvm_out
-      mkdir build
-      cd build
-      mkdir llvm
-      cd llvm
-      mkdir cmake
-      mkdir include
-      mkdir tools
-      xcopy "..\..\..\cmake" ".\cmake" /E
-      xcopy "..\..\..\include" ".\include" /E
-      cd ..\
-      mkdir llvm_build
-      cd llvm_build
+  - bash: |
+      mkdir -p llvm_out/build/llvm
+      cd llvm_out/build/llvm
+      mkdir cmake include tools
+      cp -r "../../../cmake" "./cmake"
+      cp -r "../../../include" "./include"
+      cd ..
+
+      mkdir llvm_build && cd llvm_build
       mkdir Release
       mkdir include
-      mkdir lib
-      cd lib
-      mkdir cmake
-      cd ..\
-      xcopy "..\..\..\llvm_build\Release" ".\Release" /E
-      xcopy  "..\..\..\llvm_build\include" ".\include" /E
-      xcopy  "..\..\..\llvm_build\lib\cmake" ".\lib\cmake" /E
-      cd ..\
+      mkdir -p lib/cmake
+
+      cp -r "../../../llvm_build/Release" "./Release"
+      cp -r  "../../../llvm_build/include" "./include"
+      cp -r  "../../../llvm_build/lib/cmake" "./lib/cmake"
+      cd ..
+
       7z a -t7z -m0=lzma2 -mx=9 -aoa -r "llvmlibs_mt.7z" *
+      sha256sum llvmlibs_mt.7z | awk '{ print $1 }' > llvmlibs_mt.7z.sha256
     displayName: Package LLVM Libraries
 
   - task: GitHubRelease@0
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
     inputs:
       gitHubConnection: RPCS3-Token
       repositoryName: RPCS3/llvm-mirror
@@ -122,7 +118,7 @@ jobs:
       #releaseNotesSource: 'file' # Optional. Options: file, input
       #releaseNotesFile: # Optional
       #releaseNotes: # Optional
-      assets: 'llvm_out/build/llvmlibs_mt.7z' # Optional
+      assets: 'llvm_out/build/llvmlibs_mt.*' # Optional
       assetUploadMode: delete # Optional. Options: delete, replace
       #isDraft: false # Optional
       #isPreRelease: true # Optional
