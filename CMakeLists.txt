@@ -842,10 +842,10 @@ configure_file(
 set(TENSORFLOW_C_LIB_PATH "" CACHE PATH "Path to TensorFlow C library install")
 find_library(tensorflow_c_api tensorflow PATHS ${TENSORFLOW_C_LIB_PATH}/lib)
 
-if (tensorflow_c_api)
-  set(LLVM_HAVE_TF_API "ON" CACHE BOOL "Full Tensorflow API available")
-  include_directories(${TENSORFLOW_C_LIB_PATH}/include)
-endif()
+# if (tensorflow_c_api)
+#   set(LLVM_HAVE_TF_API "ON" CACHE BOOL "Full Tensorflow API available")
+#   include_directories(${TENSORFLOW_C_LIB_PATH}/include)
+# endif()
 
 # Configure the three LLVM configuration header files.
 configure_file(
