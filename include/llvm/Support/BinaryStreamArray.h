@@ -270,11 +270,11 @@ public:
     assert(Stream.getLength() % sizeof(T) == 0);
   }
 
-  bool operator==(const FixedStreamArray<T> &Other) const {
+  bool operator==(const FixedStreamArray &Other) const {
     return Stream == Other.Stream;
   }
 
-  bool operator!=(const FixedStreamArray<T> &Other) const {
+  bool operator!=(const FixedStreamArray &Other) const {
     return !(*this == Other);
   }
 
@@ -328,10 +328,10 @@ public:
   FixedStreamArrayIterator(const FixedStreamArray<T> &Array, uint32_t Index)
       : Array(Array), Index(Index) {}
 
-  FixedStreamArrayIterator<T>(const FixedStreamArrayIterator<T> &Other)
+  FixedStreamArrayIterator(const FixedStreamArrayIterator &Other)
       : Array(Other.Array), Index(Other.Index) {}
-  FixedStreamArrayIterator<T> &
-  operator=(const FixedStreamArrayIterator<T> &Other) {
+  FixedStreamArrayIterator&
+  operator=(const FixedStreamArrayIterator &Other) {
     Array = Other.Array;
     Index = Other.Index;
     return *this;
@@ -340,29 +340,29 @@ public:
   const T &operator*() const { return Array[Index]; }
   const T &operator*() { return Array[Index]; }
 
-  bool operator==(const FixedStreamArrayIterator<T> &R) const {
+  bool operator==(const FixedStreamArrayIterator &R) const {
     assert(Array == R.Array);
     return (Index == R.Index) && (Array == R.Array);
   }
 
-  FixedStreamArrayIterator<T> &operator+=(std::ptrdiff_t N) {
+  FixedStreamArrayIterator &operator+=(std::ptrdiff_t N) {
     Index += N;
     return *this;
   }
 
-  FixedStreamArrayIterator<T> &operator-=(std::ptrdiff_t N) {
+  FixedStreamArrayIterator &operator-=(std::ptrdiff_t N) {
     assert(std::ptrdiff_t(Index) >= N);
     Index -= N;
     return *this;
   }
 
-  std::ptrdiff_t operator-(const FixedStreamArrayIterator<T> &R) const {
+  std::ptrdiff_t operator-(const FixedStreamArrayIterator &R) const {
     assert(Array == R.Array);
     assert(Index >= R.Index);
     return Index - R.Index;
   }
 
-  bool operator<(const FixedStreamArrayIterator<T> &RHS) const {
+  bool operator<(const FixedStreamArrayIterator &RHS) const {
     assert(Array == RHS.Array);
     return Index < RHS.Index;
   }
