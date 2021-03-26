@@ -1244,30 +1244,19 @@ public:
     return Ptr;
   }
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wambiguous-reversed-operator"
-#endif
-  bool operator==(const ConstIterator &RHS) const {
-    assert((!Ptr || isHandleInSync()) && "handle not in sync!");
+  friend bool operator==(const DenseMapIterator &LHS,
+                         const DenseMapIterator &RHS) {
+    assert((!LHS.Ptr || LHS.isHandleInSync()) && "handle not in sync!");
     assert((!RHS.Ptr || RHS.isHandleInSync()) && "handle not in sync!");
-    assert(getEpochAddress() == RHS.getEpochAddress() &&
+    assert(LHS.getEpochAddress() == RHS.getEpochAddress() &&
            "comparing incomparable iterators!");
-    return Ptr == RHS.Ptr;
+    return LHS.Ptr == RHS.Ptr;
   }
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-#if __cpp_impl_three_way_comparison >= 201711
-#else
-  bool operator!=(const ConstIterator &RHS) const {
-    assert((!Ptr || isHandleInSync()) && "handle not in sync!");
-    assert((!RHS.Ptr || RHS.isHandleInSync()) && "handle not in sync!");
-    assert(getEpochAddress() == RHS.getEpochAddress() &&
-           "comparing incomparable iterators!");
-    return Ptr != RHS.Ptr;
+
+  friend bool operator!=(const DenseMapIterator &LHS,
+                         const DenseMapIterator &RHS) {
+    return !(LHS == RHS);
   }
-#endif
 
   inline DenseMapIterator& operator++() {  // Preincrement
     assert(isHandleInSync() && "invalid iterator access!");
