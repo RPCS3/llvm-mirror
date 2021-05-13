@@ -720,21 +720,21 @@ namespace llvm {
       T *P;
 
     public:
-      SingleLinkedListIterator<T>(T *P) : P(P) {}
+      SingleLinkedListIterator(T *P) : P(P) {}
 
-      SingleLinkedListIterator<T> &operator++() {
+      SingleLinkedListIterator &operator++() {
         P = P->Next;
         return *this;
       }
-      SingleLinkedListIterator<T> operator++(int) {
+      SingleLinkedListIterator operator++(int) {
         SingleLinkedListIterator res = *this;
         ++*this;
         return res;
       }
-      bool operator!=(const SingleLinkedListIterator<T> &Other) const {
+      bool operator!=(const SingleLinkedListIterator &Other) const {
         return P != Other.operator->();
       }
-      bool operator==(const SingleLinkedListIterator<T> &Other) const {
+      bool operator==(const SingleLinkedListIterator &Other) const {
         return P == Other.operator->();
       }
       T &operator*() const {
