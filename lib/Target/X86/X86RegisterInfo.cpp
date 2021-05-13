@@ -299,6 +299,8 @@ X86RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
   case CallingConv::PreserveMost:
     return CSR_64_RT_MostRegs_SaveList;
   case CallingConv::PreserveAll:
+    if (HasAVX512)
+      return CSR_64_RT_AllRegs_512_SaveList;
     if (HasAVX)
       return CSR_64_RT_AllRegs_AVX_SaveList;
     return CSR_64_RT_AllRegs_SaveList;
@@ -418,6 +420,8 @@ X86RegisterInfo::getCallPreservedMask(const MachineFunction &MF,
   case CallingConv::PreserveMost:
     return CSR_64_RT_MostRegs_RegMask;
   case CallingConv::PreserveAll:
+    if (HasAVX512)
+      return CSR_64_RT_AllRegs_512_RegMask;
     if (HasAVX)
       return CSR_64_RT_AllRegs_AVX_RegMask;
     return CSR_64_RT_AllRegs_RegMask;

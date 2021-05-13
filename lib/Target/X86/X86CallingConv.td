@@ -1103,6 +1103,9 @@ def CSR_64_RT_AllRegs     : CalleeSavedRegs<(add CSR_64_RT_MostRegs,
                                                  (sequence "XMM%u", 0, 15))>;
 def CSR_64_RT_AllRegs_AVX : CalleeSavedRegs<(add CSR_64_RT_MostRegs,
                                                  (sequence "YMM%u", 0, 15))>;
+def CSR_64_RT_AllRegs_512 : CalleeSavedRegs<(add CSR_64_RT_MostRegs,
+                                                 (sequence "K%u", 0, 7),
+                                                 (sequence "ZMM%u", 0, 31))>;
 
 def CSR_64_MostRegs : CalleeSavedRegs<(add RBX, RCX, RDX, RSI, RDI, R8, R9, R10,
                                            R11, R12, R13, R14, R15, RBP,
