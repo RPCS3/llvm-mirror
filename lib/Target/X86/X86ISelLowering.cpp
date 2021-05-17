@@ -43536,9 +43536,11 @@ static SDValue combineMulToPMADDWD(SDNode *N, SelectionDAG &DAG,
     // with zero extends, which should qualify for the optimization.
     // Otherwise just fallback to zero-extension check.
     if (isa<ConstantSDNode>(N0.getOperand(1).getOperand(0)) &&
-        N0.getOperand(1).getConstantOperandVal(0) == 16 &&
         isa<ConstantSDNode>(N1.getOperand(1).getOperand(0)) &&
-        N1.getOperand(1).getConstantOperandVal(0) == 16) {
+        N0.getOperand(1).getConstantOperandVal(0) == 16 &&
+        N1.getOperand(1).getConstantOperandVal(0) == 16 &&
+        DAG.isSplatValue(N0.getOperand(1)) &&
+        DAG.isSplatValue(N1.getOperand(1))) {
       // Nullify mask to pass the following check
       Mask17 = 0;
       N0 = DAG.getNode(ISD::SRL, N0.getNode(), VT, N0.getOperand(0),
@@ -43547,8 +43549,20 @@ static SDValue combineMulToPMADDWD(SDNode *N, SelectionDAG &DAG,
                        N1.getOperand(1));
     }
   }
-  if (!DAG.MaskedValueIsZero(N1, Mask17) ||
-      !DAG.MaskedValueIsZero(N0, Mask17))
+
+  if (!!Mask17 && N0.getOpcode() == ISD::SRA) {
+    if (isa<ConstantSDNode>(N0.getOperand(1).getOperand(0)) &&
+        DAG.ComputeNumSignBits(N1) >= 17 &&
+        DAG.isSplatValue(N0.getOperand(1)) &&
+        N0.getOperand(1).getConstantOperandVal(0) == 16) {
+      Mask17 = 0;
+      N0 = DAG.getNode(ISD::SRL, N0.getNode(), VT, N0.getOperand(0),
+                       N0.getOperand(1));
+    }
+  }
+
+  if (!!Mask17 && (!DAG.MaskedValueIsZero(N1, Mask17) ||
+                   !DAG.MaskedValueIsZero(N0, Mask17)))
     return SDValue();
 
   // Use SplitOpsAndApply to handle AVX splitting.
