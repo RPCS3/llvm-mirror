@@ -389,6 +389,9 @@ public:
 
   ElementCount(const LinearPolySize<ElementCount> &V) : LinearPolySize(V) {}
 
+  ElementCount(unsigned Size, bool IsScalable = false)
+    : LinearPolySize(get(Size, IsScalable)) {}
+
   /// Counting predicates.
   ///
   ///@{ Number of elements..
