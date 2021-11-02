@@ -1667,27 +1667,21 @@ public:
   }
 
   // Deprecated [opaque pointer types]
-  LLVM_ATTRIBUTE_DEPRECATED(LoadInst *CreateLoad(Value *Ptr,
-                                                 const char *Name),
-                            "Use the version that explicitly specifies the "
-                            "loaded type instead") {
+  LoadInst *CreateLoad(Value *Ptr,
+                                                 const char *Name) {
     return CreateLoad(Ptr->getType()->getPointerElementType(), Ptr, Name);
   }
 
   // Deprecated [opaque pointer types]
-  LLVM_ATTRIBUTE_DEPRECATED(LoadInst *CreateLoad(Value *Ptr,
-                                                 const Twine &Name = ""),
-                            "Use the version that explicitly specifies the "
-                            "loaded type instead") {
+  LoadInst *CreateLoad(Value *Ptr,
+                                                 const Twine &Name = "") {
     return CreateLoad(Ptr->getType()->getPointerElementType(), Ptr, Name);
   }
 
   // Deprecated [opaque pointer types]
-  LLVM_ATTRIBUTE_DEPRECATED(LoadInst *CreateLoad(Value *Ptr,
+  LoadInst *CreateLoad(Value *Ptr,
                                                  bool isVolatile,
-                                                 const Twine &Name = ""),
-                            "Use the version that explicitly specifies the "
-                            "loaded type instead") {
+                                                 const Twine &Name = "") {
     return CreateLoad(Ptr->getType()->getPointerElementType(), Ptr, isVolatile,
                       Name);
   }
@@ -1716,30 +1710,24 @@ public:
   }
 
   // Deprecated [opaque pointer types]
-  LLVM_ATTRIBUTE_DEPRECATED(LoadInst *CreateAlignedLoad(Value *Ptr,
+  LoadInst *CreateAlignedLoad(Value *Ptr,
                                                         MaybeAlign Align,
-                                                        const char *Name),
-                            "Use the version that explicitly specifies the "
-                            "loaded type instead") {
+                                                        const char *Name) {
     return CreateAlignedLoad(Ptr->getType()->getPointerElementType(), Ptr,
                              Align, Name);
   }
   // Deprecated [opaque pointer types]
-  LLVM_ATTRIBUTE_DEPRECATED(LoadInst *CreateAlignedLoad(Value *Ptr,
+  LoadInst *CreateAlignedLoad(Value *Ptr,
                                                         MaybeAlign Align,
-                                                        const Twine &Name = ""),
-                            "Use the version that explicitly specifies the "
-                            "loaded type instead") {
+                                                        const Twine &Name = "") {
     return CreateAlignedLoad(Ptr->getType()->getPointerElementType(), Ptr,
                              Align, Name);
   }
   // Deprecated [opaque pointer types]
-  LLVM_ATTRIBUTE_DEPRECATED(LoadInst *CreateAlignedLoad(Value *Ptr,
+  LoadInst *CreateAlignedLoad(Value *Ptr,
                                                         MaybeAlign Align,
                                                         bool isVolatile,
-                                                        const Twine &Name = ""),
-                            "Use the version that explicitly specifies the "
-                            "loaded type instead") {
+                                                        const Twine &Name = "") {
     return CreateAlignedLoad(Ptr->getType()->getPointerElementType(), Ptr,
                              Align, isVolatile, Name);
   }
@@ -1784,10 +1772,8 @@ public:
     return Insert(new AtomicRMWInst(Op, Ptr, Val, *Align, Ordering, SSID));
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateGEP(Value *Ptr, ArrayRef<Value *> IdxList,
-                       const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateGEP(Value *Ptr, ArrayRef<Value *> IdxList,
+                       const Twine &Name = "") {
     return CreateGEP(Ptr->getType()->getScalarType()->getPointerElementType(),
                      Ptr, IdxList, Name);
   }
@@ -1806,10 +1792,8 @@ public:
     return Insert(GetElementPtrInst::Create(Ty, Ptr, IdxList), Name);
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateInBoundsGEP(Value *Ptr, ArrayRef<Value *> IdxList,
-                               const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateInBoundsGEP(Value *Ptr, ArrayRef<Value *> IdxList,
+                               const Twine &Name = "") {
     return CreateInBoundsGEP(
         Ptr->getType()->getScalarType()->getPointerElementType(), Ptr, IdxList,
         Name);
@@ -1845,10 +1829,8 @@ public:
     return Insert(GetElementPtrInst::CreateInBounds(Ty, Ptr, Idx), Name);
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateConstGEP1_32(Value *Ptr, unsigned Idx0,
-                                const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateConstGEP1_32(Value *Ptr, unsigned Idx0,
+                                const Twine &Name = "") {
     return CreateConstGEP1_32(
         Ptr->getType()->getScalarType()->getPointerElementType(), Ptr, Idx0,
         Name);
@@ -1910,10 +1892,8 @@ public:
     return Insert(GetElementPtrInst::Create(Ty, Ptr, Idx), Name);
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateConstGEP1_64(Value *Ptr, uint64_t Idx0,
-                                const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateConstGEP1_64(Value *Ptr, uint64_t Idx0,
+                                const Twine &Name = "") {
     return CreateConstGEP1_64(
         Ptr->getType()->getScalarType()->getPointerElementType(), Ptr, Idx0,
         Name);
@@ -1929,10 +1909,8 @@ public:
     return Insert(GetElementPtrInst::CreateInBounds(Ty, Ptr, Idx), Name);
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateConstInBoundsGEP1_64(Value *Ptr, uint64_t Idx0,
-                                        const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateConstInBoundsGEP1_64(Value *Ptr, uint64_t Idx0,
+                                        const Twine &Name = "") {
     return CreateConstInBoundsGEP1_64(
         Ptr->getType()->getScalarType()->getPointerElementType(), Ptr, Idx0,
         Name);
@@ -1951,10 +1929,8 @@ public:
     return Insert(GetElementPtrInst::Create(Ty, Ptr, Idxs), Name);
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateConstGEP2_64(Value *Ptr, uint64_t Idx0, uint64_t Idx1,
-                                const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateConstGEP2_64(Value *Ptr, uint64_t Idx0, uint64_t Idx1,
+                                const Twine &Name = "") {
     return CreateConstGEP2_64(
         Ptr->getType()->getScalarType()->getPointerElementType(), Ptr, Idx0,
         Idx1, Name);
@@ -1973,10 +1949,8 @@ public:
     return Insert(GetElementPtrInst::CreateInBounds(Ty, Ptr, Idxs), Name);
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateConstInBoundsGEP2_64(Value *Ptr, uint64_t Idx0,
-                                        uint64_t Idx1, const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateConstInBoundsGEP2_64(Value *Ptr, uint64_t Idx0,
+                                        uint64_t Idx1, const Twine &Name = "") {
     return CreateConstInBoundsGEP2_64(
         Ptr->getType()->getScalarType()->getPointerElementType(), Ptr, Idx0,
         Idx1, Name);
@@ -1987,9 +1961,7 @@ public:
     return CreateConstInBoundsGEP2_32(Ty, Ptr, 0, Idx, Name);
   }
 
-  LLVM_ATTRIBUTE_DEPRECATED(
-      Value *CreateStructGEP(Value *Ptr, unsigned Idx, const Twine &Name = ""),
-      "Use the version with explicit element type instead") {
+  Value *CreateStructGEP(Value *Ptr, unsigned Idx, const Twine &Name = "") {
     return CreateConstInBoundsGEP2_32(
         Ptr->getType()->getScalarType()->getPointerElementType(), Ptr, 0, Idx,
         Name);
