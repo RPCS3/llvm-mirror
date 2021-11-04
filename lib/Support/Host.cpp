@@ -777,13 +777,21 @@ getIntelProcessorTypeAndSubtype(unsigned Family, unsigned Model,
     case 0x8d:
       CPU = "tigerlake";
       *Type = X86::INTEL_COREI7;
+      *Subtype = X86::INTEL_COREI7_TIGERLAKE;
       break;
 
     // Alderlake:
     case 0x97:
     case 0x9a:
-      CPU = "alderlake";
       *Type = X86::INTEL_COREI7;
+      // Alderlake has AVX-512 when the E-cores are disabled
+      if (testFeature(X86::FEATURE_AVX512VBMI2)) {
+        CPU = "rocketlake";
+        *Subtype = X86::INTEL_COREI7_ROCKETLAKE;
+      } else {
+        CPU = "alderlake";
+        *Subtype = X86::INTEL_COREI7_ALDERLAKE;
+      }
       break;
 
     // Icelake Xeon:
