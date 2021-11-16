@@ -45741,11 +45741,7 @@ static SDValue combineTruncateWithSat(SDValue In, EVT VT, const SDLoc &DL,
   // FIXME: We could widen truncates to 512 to remove the VLX restriction.
   // If the result type is 256-bits or larger and we have disable 512-bit
   // registers, we should go ahead and use the pack instructions if possible.
-  bool PreferAVX512 = ((Subtarget.hasAVX512() && InSVT == MVT::i32) ||
-                       (Subtarget.hasBWI() && InSVT == MVT::i16)) &&
-                      (InVT.getSizeInBits() > 128) &&
-                      (Subtarget.hasVLX() || InVT.getSizeInBits() > 256) &&
-                      !(!Subtarget.useAVX512Regs() && VT.getSizeInBits() >= 256);
+  bool PreferAVX512 = false;
 
   if (isPowerOf2_32(VT.getVectorNumElements()) && !PreferAVX512 &&
       VT.getSizeInBits() >= 64 &&
@@ -45771,42 +45767,6 @@ static SDValue combineTruncateWithSat(SDValue In, EVT VT, const SDLoc &DL,
     if (auto SSatVal = detectSSatPattern(In, VT))
       return truncateVectorWithPACK(X86ISD::PACKSS, VT, SSatVal, DL, DAG,
                                     Subtarget);
-  }
-
-  const TargetLowering &TLI = DAG.getTargetLoweringInfo();
-  if (TLI.isTypeLegal(InVT) && InVT.isVector() && SVT != MVT::i1 &&
-      Subtarget.hasAVX512() && (InSVT != MVT::i16 || Subtarget.hasBWI()) &&
-      (SVT == MVT::i32 || SVT == MVT::i16 || SVT == MVT::i8)) {
-    unsigned TruncOpc = 0;
-    SDValue SatVal;
-    if (auto SSatVal = detectSSatPattern(In, VT)) {
-      SatVal = SSatVal;
-      TruncOpc = X86ISD::VTRUNCS;
-    } else if (auto USatVal = detectUSatPattern(In, VT, DAG, DL)) {
-      SatVal = USatVal;
-      TruncOpc = X86ISD::VTRUNCUS;
-    }
-    if (SatVal) {
-      unsigned ResElts = VT.getVectorNumElements();
-      // If the input type is less than 512 bits and we don't have VLX, we need
-      // to widen to 512 bits.
-      if (!Subtarget.hasVLX() && !InVT.is512BitVector()) {
-        unsigned NumConcats = 512 / InVT.getSizeInBits();
-        ResElts *= NumConcats;
-        SmallVector<SDValue, 4> ConcatOps(NumConcats, DAG.getUNDEF(InVT));
-        ConcatOps[0] = SatVal;
-        InVT = EVT::getVectorVT(*DAG.getContext(), InSVT,
-                                NumConcats * InVT.getVectorNumElements());
-        SatVal = DAG.getNode(ISD::CONCAT_VECTORS, DL, InVT, ConcatOps);
-      }
-      // Widen the result if its narrower than 128 bits.
-      if (ResElts * SVT.getSizeInBits() < 128)
-        ResElts = 128 / SVT.getSizeInBits();
-      EVT TruncVT = EVT::getVectorVT(*DAG.getContext(), SVT, ResElts);
-      SDValue Res = DAG.getNode(TruncOpc, DL, TruncVT, SatVal);
-      return DAG.getNode(ISD::EXTRACT_SUBVECTOR, DL, VT, Res,
-                         DAG.getIntPtrConstant(0, DL));
-    }
   }
 
   return SDValue();
