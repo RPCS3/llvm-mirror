@@ -50278,21 +50278,18 @@ static SDValue matchPMADDWD_3(SelectionDAG &DAG, SDValue N0, SDValue N1,
           // N1 = DAG.getNode(ISD::OR, DL, VT, N01, N11);
         }
       } else {
-        Mask17 = 0;
-        N00 = DAG.getNode(ISD::SRL, DL, VT, N00.getOperand(0), N00.getOperand(1));
-        N01 = DAG.getNode(ISD::SRL, DL, VT, N01.getOperand(0), N01.getOperand(1));
-        N10 = DAG.getNode(ISD::AND, DL, VT, N10.getOperand(0), DAG.getConstant(0xffff0000u, DL, VT));
-        N11 = DAG.getNode(ISD::AND, DL, VT, N11.getOperand(0), DAG.getConstant(0xffff0000u, DL, VT));
-        N0 = DAG.getNode(ISD::OR, DL, VT, N00, N10);
-        N1 = DAG.getNode(ISD::OR, DL, VT, N01, N11);
+        // Mask17 = 0;
+        // N00 = DAG.getNode(ISD::SRL, DL, VT, N00.getOperand(0), N00.getOperand(1));
+        // N01 = DAG.getNode(ISD::SRL, DL, VT, N01.getOperand(0), N01.getOperand(1));
+        // N10 = DAG.getNode(ISD::AND, DL, VT, N10.getOperand(0), DAG.getConstant(0xffff0000u, DL, VT));
+        // N11 = DAG.getNode(ISD::AND, DL, VT, N11.getOperand(0), DAG.getConstant(0xffff0000u, DL, VT));
+        // N0 = DAG.getNode(ISD::OR, DL, VT, N00, N10);
+        // N1 = DAG.getNode(ISD::OR, DL, VT, N01, N11);
       }
     }
   }
 
-  if (!!Mask17 && (!DAG.MaskedValueIsZero(N00, Mask17) ||
-                   !DAG.MaskedValueIsZero(N01, Mask17) ||
-                   !DAG.MaskedValueIsZero(N10, Mask17) ||
-                   !DAG.MaskedValueIsZero(N11, Mask17)))
+  if (!!Mask17)
     return SDValue();
 
   // Use SplitOpsAndApply to handle AVX splitting.
