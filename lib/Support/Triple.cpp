@@ -688,9 +688,13 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::thumb:
   case Triple::x86:
   case Triple::x86_64:
-    if (T.isOSDarwin())
-      return Triple::MachO;
-    else if (T.isOSWindows())
+    // Workaround for macOS
+    // LLVM fails to correctly set up trampolines with Mach-O,
+    // so we just force LLVM to use ELF instead.
+    //if (T.isOSDarwin())
+    //  return Triple::MachO;
+    //else
+    if (T.isOSWindows())
       return Triple::COFF;
     return Triple::ELF;
 
