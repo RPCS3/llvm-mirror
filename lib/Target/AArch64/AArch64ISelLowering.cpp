@@ -5526,7 +5526,7 @@ SDValue AArch64TargetLowering::LowerCallResult(
 /// Return true if the calling convention is one that we can guarantee TCO for.
 static bool canGuaranteeTCO(CallingConv::ID CC, bool GuaranteeTailCalls) {
   return (CC == CallingConv::Fast && GuaranteeTailCalls) ||
-         CC == CallingConv::Tail || CC == CallingConv::SwiftTail;
+         CC == CallingConv::Tail || CC == CallingConv::SwiftTail || CC == CallingConv::GHC;
 }
 
 /// Return true if we might ever do TCO for calls with this calling convention.
@@ -5539,6 +5539,7 @@ static bool mayTailCallThisCC(CallingConv::ID CC) {
   case CallingConv::SwiftTail:
   case CallingConv::Tail:
   case CallingConv::Fast:
+  case CallingConv::GHC:
     return true;
   default:
     return false;
