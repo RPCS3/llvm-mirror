@@ -76,9 +76,7 @@ AArch64RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
   assert(MF && "Invalid MachineFunction pointer.");
 
   if (MF->getFunction().getCallingConv() == CallingConv::GHC)
-    // GHC set of callee saved regs is empty as all those regs are
-    // used for passing STG regs around
-    return CSR_AArch64_NoRegs_SaveList;
+    return CSR_AArch64_NoRegs_LR_SaveList;
   if (MF->getFunction().getCallingConv() == CallingConv::AnyReg)
     return CSR_AArch64_AllRegs_SaveList;
 
@@ -215,8 +213,10 @@ AArch64RegisterInfo::getCallPreservedMask(const MachineFunction &MF,
                                           CallingConv::ID CC) const {
   bool SCS = MF.getFunction().hasFnAttribute(Attribute::ShadowCallStack);
   if (CC == CallingConv::GHC)
-    // This is academic because all GHC calls are (supposed to be) tail calls
-    return SCS ? CSR_AArch64_NoRegs_SCS_RegMask : CSR_AArch64_NoRegs_RegMask;
+    // By default LLVM doesn't save any regs for GHC.
+    // This means we'll clobber LR on arm64 if we make non-tail calls (e.g. L2 syscall)
+    // CSR_AArch64_NoRegs_LR saves LR to fix this
+    return CSR_AArch64_NoRegs_LR_RegMask;
   if (CC == CallingConv::AnyReg)
     return SCS ? CSR_AArch64_AllRegs_SCS_RegMask : CSR_AArch64_AllRegs_RegMask;
 

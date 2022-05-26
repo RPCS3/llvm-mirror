@@ -1165,11 +1165,6 @@ void AArch64FrameLowering::emitPrologue(MachineFunction &MF,
         .setMIFlag(MachineInstr::FrameSetup);
   }
 
-  // All calls are tail calls in GHC calling conv, and functions have no
-  // prologue/epilogue.
-  if (MF.getFunction().getCallingConv() == CallingConv::GHC)
-    return;
-
   // Set tagged base pointer to the requested stack slot.
   // Ideally it should match SP value after prologue.
   Optional<int> TBPI = AFI->getTaggedBasePointerIndex();
@@ -1676,11 +1671,6 @@ void AArch64FrameLowering::emitEpilogue(MachineFunction &MF,
   int64_t NumBytes = IsFunclet ? getWinEHFuncletFrameSize(MF)
                                : MFI.getStackSize();
   AArch64FunctionInfo *AFI = MF.getInfo<AArch64FunctionInfo>();
-
-  // All calls are tail calls in GHC calling conv, and functions have no
-  // prologue/epilogue.
-  if (MF.getFunction().getCallingConv() == CallingConv::GHC)
-    return;
 
   // How much of the stack used by incoming arguments this function is expected
   // to restore in this particular epilogue.
@@ -2733,10 +2723,6 @@ bool AArch64FrameLowering::restoreCalleeSavedRegisters(
 void AArch64FrameLowering::determineCalleeSaves(MachineFunction &MF,
                                                 BitVector &SavedRegs,
                                                 RegScavenger *RS) const {
-  // All calls are tail calls in GHC calling conv, and functions have no
-  // prologue/epilogue.
-  if (MF.getFunction().getCallingConv() == CallingConv::GHC)
-    return;
 
   TargetFrameLowering::determineCalleeSaves(MF, SavedRegs, RS);
   const AArch64RegisterInfo *RegInfo = static_cast<const AArch64RegisterInfo *>(

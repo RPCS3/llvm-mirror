@@ -508,6 +508,9 @@ def CSR_Darwin_AArch64_CXX_TLS_ViaCopy
 def CSR_Darwin_AArch64_RT_MostRegs
     : CalleeSavedRegs<(add CSR_Darwin_AArch64_AAPCS, (sequence "X%u", 9, 15))>;
 
+def CSR_AArch64_NoRegs_LR
+    : CalleeSavedRegs<(add CSR_AArch64_NoRegs, LR)>;
+
 // Variants of the standard calling conventions for shadow call stack.
 // These all preserve x18 in addition to any other registers.
 def CSR_AArch64_NoRegs_SCS
