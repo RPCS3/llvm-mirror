@@ -615,6 +615,7 @@ static bool mayTailCallThisCC(CallingConv::ID CC) {
   case CallingConv::SwiftTail:
   case CallingConv::Tail:
   case CallingConv::Fast:
+  case CallingConv::GHC:
     return true;
   default:
     return false;
