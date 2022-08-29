@@ -783,6 +783,8 @@ getIntelProcessorTypeAndSubtype(unsigned Family, unsigned Model,
     // Alderlake:
     case 0x97:
     case 0x9a:
+    case 0xb7:              // Raptorlake Desktop
+    case 0xba:              // Raptorlake Mobile
       *Type = X86::INTEL_COREI7;
       // Alderlake has AVX-512 when the E-cores are disabled
       if (testFeature(X86::FEATURE_AVX512VBMI2)) {
