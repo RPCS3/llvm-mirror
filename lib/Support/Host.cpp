@@ -1036,9 +1036,15 @@ getAMDProcessorTypeAndSubtype(unsigned Family, unsigned Model,
     }
     break;
   case 25:
+    if (testFeature(X86::FEATURE_AVX512VBMI2)) {
+      CPU = "icelake-client";
+      *Type = X86::INTEL_COREI7;
+      *Subtype = X86::INTEL_COREI7_ICELAKE_CLIENT;
+      break; // Treat Zen 4 as Ice Lake for AVX512
+    }
     CPU = "znver3";
     *Type = X86::AMDFAM19H;
-    if (Model <= 0x0f) {
+    if (Model <= 0x0f || Model == 0x21) {
       *Subtype = X86::AMDFAM19H_ZNVER3;
       break; // 00h-0Fh: Zen3
     }
