@@ -1025,17 +1025,14 @@ getAMDProcessorTypeAndSubtype(unsigned Family, unsigned Model,
     *Type = X86::AMD_BTVER2;
     break;
   case 23:
-    CPU = "znver1";
     *Type = X86::AMDFAM17H;
-    if ((Model >= 0x30 && Model <= 0x3f) || Model == 0x71) {
+    if (Model >= 0x30) {
       CPU = "znver2";
       *Subtype = X86::AMDFAM17H_ZNVER2;
-      break; // 30h-3fh, 71h: Zen2
+      break; // >30h: Zen2
     }
-    if (Model <= 0x0f) {
-      *Subtype = X86::AMDFAM17H_ZNVER1;
-      break; // 00h-0Fh: Zen1
-    }
+    CPU = "znver1";
+    *Subtype = X86::AMDFAM17H_ZNVER1;
     break;
   case 25:
     if (testFeature(X86::FEATURE_AVX512VBMI2)) {
@@ -1046,10 +1043,7 @@ getAMDProcessorTypeAndSubtype(unsigned Family, unsigned Model,
     }
     CPU = "znver3";
     *Type = X86::AMDFAM19H;
-    if (Model <= 0x0f || Model == 0x21) {
-      *Subtype = X86::AMDFAM19H_ZNVER3;
-      break; // 00h-0Fh: Zen3
-    }
+    *Subtype = X86::AMDFAM19H_ZNVER3;
     break;
   default:
     break; // Unknown AMD CPU.
