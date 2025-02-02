@@ -62,6 +62,8 @@ jobs:
 
   - task: GitHubRelease@0
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    env:
+      RPCS3_TOKEN: $(RPCS3-Token)
     inputs:
       gitHubConnection: RPCS3-Token
       repositoryName: RPCS3/llvm-mirror
