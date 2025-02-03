@@ -62,10 +62,8 @@ jobs:
 
   - task: GitHubRelease@0
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    env:
-      RPCS3_TOKEN: $(RPCS3-Token)
     inputs:
-      gitHubConnection: RPCS3-Token
+      gitHubConnection: RPCS3
       repositoryName: RPCS3/llvm-mirror
       action: edit # Options: create, edit, delete
       target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
