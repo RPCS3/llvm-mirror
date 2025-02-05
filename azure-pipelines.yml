@@ -60,7 +60,7 @@ jobs:
       sha256sum llvmlibs_mt.7z | awk '{ print $1 }' > llvmlibs_mt.7z.sha256
     displayName: Generate sha256
 
-  - task: GitHubRelease@0
+  - task: GitHubRelease@1
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     inputs:
       gitHubConnection: RPCS3
