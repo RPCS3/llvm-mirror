@@ -1,0 +1,73 @@
+name: Win32 Build
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+env:
+  LLVMVER: 21.1.6
+
+jobs:
+  build_win32:
+    runs-on: windows-2025
+    timeout-minutes: 0
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Configure LLVM
+      shell: powershell
+      run: |
+        git clone -b llvmorg-${{ env.LLVMVER }} --depth 1 https://github.com/llvm/llvm-project.git
+        mkdir llvm_build
+        cd llvm_build
+        cmake -G "Visual Studio 17 2022" ../llvm-project/llvm -Thost=x64 -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_DEFAULT_TARGET_TRIPLE:STRING=x86_64-pc-windows-msvc -DLLVM_HOST_TRIPLE:STRING=x86_64-pc-windows-msvc -DCMAKE_BUILD_TYPE=Release -DLLVM_BUILD_RUNTIME=OFF -DLLVM_BUILD_TOOLS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_UTILS=OFF -DLLVM_USE_INTEL_JITEVENTS=ON -DLLVM_ENABLE_Z3_SOLVER=OFF -DCMAKE_SYSTEM_VERSION=6.1 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0 -DLLVM_USE_CRT_DEBUG=MTd -DLLVM_USE_CRT_RELEASE=MT -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+
+    - name: Build LLVM
+      shell: powershell
+      run: |
+        cd llvm_build
+        cmake --build . --config Release -- /maxcpucount
+
+    - name: Package LLVM Libraries
+      shell: powershell
+      run: |
+        mkdir llvm_out
+        cd llvm_out
+        mkdir build
+        cd build
+        mkdir llvm
+        cd llvm
+        mkdir cmake
+        mkdir include
+        mkdir tools
+        xcopy "..\..\..\llvm-project\llvm\cmake" ".\cmake" /E /Y
+        xcopy "..\..\..\llvm-project\llvm\include" ".\include" /E /Y
+        cd ..\
+        mkdir llvm_build
+        cd llvm_build
+        mkdir Release
+        mkdir include
+        mkdir lib
+        cd lib
+        mkdir cmake
+        cd ..\
+        xcopy "..\..\..\llvm_build\Release" ".\Release" /E /Y
+        xcopy  "..\..\..\llvm_build\include" ".\include" /E /Y
+        xcopy  "..\..\..\llvm_build\lib\cmake" ".\lib\cmake" /E /Y
+        cd ..\
+        7z a -t7z -m0=lzma2 -mx=9 -aoa -r "llvmlibs_mt.7z" *
+
+    - name: Generate sha256
+      shell: bash
+      run: |
+        cd llvm_out/build
+        sha256sum llvmlibs_mt.7z | awk '{ print $1 }' > llvmlibs_mt.7z.sha256
+
+    - name: Create or update GitHub release and upload assets
+      if: github.ref == 'refs/heads/master' && success()
+      run: gh release create "${{ env.LLVMVER }}" llvm_out/build/llvmlibs_mt.* --title "Release ${{ env.LLVMVER }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
