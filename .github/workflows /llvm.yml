@@ -5,7 +5,7 @@ on:
     branches: [ master ]
   workflow_dispatch:
 env:
-  LLVMVER: 21.1.6
+  LLVMVER: 22.1.2
 
 jobs:
   build_win32:
@@ -68,6 +68,6 @@ jobs:
 
     - name: Create or update GitHub release and upload assets
       if: github.ref == 'refs/heads/master' && success()
-      run: gh release create "${{ env.LLVMVER }}" llvm_out/build/llvmlibs_mt.* --title "Release ${{ env.LLVMVER }}"
+      run: gh release create "custom-build-win-${{ env.LLVMVER }}" llvm_out/build/llvmlibs_mt.* --title "Release ${{ env.LLVMVER }}"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
