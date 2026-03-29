@@ -5,7 +5,7 @@ on:
     branches: [ master ]
   workflow_dispatch:
 env:
-  LLVMVER: 21.1.8
+  LLVMVER: 22.1.2
 
 jobs:
   build_win32:
